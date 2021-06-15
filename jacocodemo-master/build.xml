@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="test" xmlns:jacoco="antlib:org.jacoco.ant" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="antlib:org.jacoco.ant ">
+    <!--Jacoco的安装路径-->
+    <property name="jacocoantPath" value="/Users/cjn/java/jacoco-0.8.7/lib/jacocoant.jar"/>
+    <!--最终生成.exec文件的路径，Jacoco就是根据这个文件生成最终的报告的-->
+    <property name="jacocoexecPath" value="/Users/cjn/java/jacoco-0.8.7/target/jacoco.exec"/>
+    <!--生成覆盖率报告的路径-->
+    <property name="reportfolderPath" value="/Users/cjn/java/jacoco-0.8.7/report"/>
+    <!--远程tomcat服务的ip地址-->
+    <property name="server_ip" value="127.0.0.1"/>
+    <!--前面配置的远程tomcat服务打开的端口，要跟上面配置的一样-->
+    <property name="server_port" value="6300"/>
+    <!--源代码路径可以包含多个源代码-->
+    <property name="webSrcpath" value="/Users/cjn/Downloads/jacocodemo/src/main/java"/>
+
+    <!--.class文件路径可以包含多个-->
+    <property name="webClasspath" value="/Users/cjn/Downloads/jacocodemo/target/classes"/>
+
+
+    <!--让ant知道去哪儿找Jacoco-->
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+        <classpath path="${jacocoantPath}"/>
+    </taskdef>
+
+    <!--dump任务:
+        根据前面配置的ip地址，和端口号，
+        访问目标tomcat服务，并生成.exec文件。-->
+
+    <target name="dump">
+        <jacoco:dump address="${server_ip}" reset="true" destfile="${jacocoexecPath}" port="${server_port}"
+                     append="false"/>
+    </target>
+
+
+    <!-- 2 合并exec文件 -->
+    <!-- 获取指定目录下的所有 exec 文件并将数据合并为一个exec -->
+    <target name="merge">
+        <jacoco:merge destfile="./jacoco/merge.exec">
+            <fileset dir="./jacoco/all" includes="*.exec" />
+        </jacoco:merge>
+    </target>
+
+
+    <jacoco:report>
+        <executiondata>
+            <file file="${jacocoexecPath}"/>
+        </executiondata>
+
+        <structure name="JaCoCo Report">
+            <group name="Launch related">
+                <!--此处配置classes文件地址 -->
+                <classfiles>
+                    <fileset dir="${webClasspath}"/>
+                </classfiles>
+                <!--此处配置源码地址-->
+                <sourcefiles encoding="gbk">
+                    <fileset dir="${webSrcpath}"/>
+                </sourcefiles>
+            </group>
+
+        </structure>
+
+        <html destdir="${reportfolderPath}" encoding="utf-8"/>
+    </jacoco:report>
+</project>
+
